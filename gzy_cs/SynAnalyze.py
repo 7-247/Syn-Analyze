@@ -1,3 +1,5 @@
+import os
+
 from LRDFA import LRDFANode
 import pandas as pd
 import numpy as np
@@ -253,12 +255,15 @@ class SynAnalyze(object):
         table = action.join(goto)
         table = table.drop(['$'], axis=1)
         table.to_csv("table.csv")
-        print("LR table:")
-        print(table)
+        #print("LR table:")
+        #print(table)
 
     def runOnLRTable(self, tokens):
         status_stack = [0]  # 状态栈
-        symbol_stack = ['#']  # 符号栈
+        symbol_stack = [('#',-1,1)]  # 符号栈
+        tree_layer = list()
+        tree_layer_num = list()
+        tree_line = list()
         tokens.reverse()
         isSuccess = False
         step = 0
@@ -279,19 +284,46 @@ class SynAnalyze(object):
                     isSuccess = True
                     break
                 elif action[0] == 'S':
+                    if len(tree_layer_num) == 0:
+                        tree_layer_num.append(1)
+                    else:
+                        tree_layer_num[0] += 1
                     status_stack.append(action[1])
-                    symbol_stack.append(now_token)
+                    symbol_stack.append((now_token,0,tree_layer_num[0]))
+                    tree_layer.append((now_token,0,tree_layer_num[0]))
                     tokens = tokens[:-1]
                 elif action[0] == 'r':
                     production = self.productions[action[1]]
                     left = list(production.keys())[0]
+                    next_line = 0
                     if production[left] != ['$']:  # 不需修改两个栈
                         right_length = len(production[left])
                         status_stack = status_stack[:-right_length]
-                        symbol_stack = symbol_stack[:-right_length]
+                        #symbol_stack = symbol_stack[:-right_length]
+                        for i in range(len(symbol_stack) - 1,len(symbol_stack) - right_length - 1,-1):
+                            next_line = max(next_line,symbol_stack[i][1])
+                            tree_line.append([symbol_stack[i][1],symbol_stack[i][2],0,0])
+                            symbol_stack.pop(i)
+                        next_line += 1
+                    else:
+                        next_line = 1
+                        right_length = 1
+                        if len(tree_layer_num) == 0:
+                            tree_layer_num.append(1)
+                        else:
+                            tree_layer_num[0] += 1
+                        tree_layer.append(('$',0,tree_layer_num[0]))
+                        tree_line.append([0,tree_layer_num[0],0,0])
                     go = self.LRTable[status_stack[-1]][left]  # 归约时判断接下来的状态
+                    if next_line == len(tree_layer_num):
+                        tree_layer_num.append(1)
+                    else:
+                        tree_layer_num[next_line] += 1
+                    for i in tree_line[-right_length:]:
+                        i[2],i[3] = next_line,tree_layer_num[next_line]
                     status_stack.append(go[1])
-                    symbol_stack.append(left)
+                    symbol_stack.append((left,next_line,tree_layer_num[next_line]))
+                    tree_layer.append((left,next_line,tree_layer_num[next_line]))
             else:  # 无法进行状态转移，报错
                 print('line %s' % now_line_num)
                 print('found: %s' % now_token)
@@ -299,7 +331,7 @@ class SynAnalyze(object):
                 for exp in self.LRTable[top_status].keys():
                     print(exp)
                 break
-        return isSuccess
+        return isSuccess,(tree_layer,tree_line)
 
     def analyze(self, filename):
         token_table = open(filename, 'r')
@@ -313,11 +345,12 @@ class SynAnalyze(object):
                 next_token = line.split(' ')[2]
                 tokens.append((line.split(' ')[0], next_token))
         tokens.append((str(0), '#'))
-        isSuccess = self.runOnLRTable(tokens)
+        isSuccess,tree = self.runOnLRTable(tokens)
         if isSuccess:
             print('Syntax Analyze Successfully!')
         else:
             print('Syntax Error!')
+        return tree
 
 
 if __name__ == '__main__':
@@ -326,4 +359,4 @@ if __name__ == '__main__':
     syn_ana.getTerminatorsAndNon()
     syn_ana.getFirstSets()
     syn_ana.createLRTable()
-    syn_ana.analyze('token_table.data')
+    tree = syn_ana.analyze('token_table.data')
