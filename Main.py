@@ -36,7 +36,7 @@ def index():
         syn_ana.getFirstSets()
         syn_ana.createLRTable(LRTable_path)
         syn_ana.analyze(TokenTable_path)
-        return render_template('render.html')
+        return render_template('tree.html')
     return render_template('index.html')
 
 if __name__ == '__main__':
