@@ -61,7 +61,7 @@
 16 keyword while
 16 limiter (
 16 identifier i
-16 operator !=
+16 operator <=
 16 number 100
 16 limiter )
 17 limiter {
@@ -111,6 +111,7 @@
 31 identifier c
 31 limiter ;
 32 identifier a
+32 operator +
 32 operator =
 32 number 3
 32 limiter ;
