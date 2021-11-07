@@ -111,8 +111,7 @@
 31 identifier c
 31 limiter ;
 32 identifier a
-32 operator +
-32 operator =
+32 operator |=
 32 number 3
 32 limiter ;
 33 identifier b

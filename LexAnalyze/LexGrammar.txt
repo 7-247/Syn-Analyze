@@ -19,13 +19,21 @@ operator:/
 operator:%
 operator:^  
 operator:&  
+operator:|  
 operator:=  
 operator:>  
 operator:<  
 operator:> equal_tail  
 operator:< equal_tail  
 operator:! equal_tail  
-operator:= equal_tail  
+operator:+ equal_tail  
+operator:- equal_tail  
+operator:* equal_tail  
+operator:/ equal_tail  
+operator:% equal_tail  
+operator:^ equal_tail  
+operator:& equal_tail  
+operator:| equal_tail  
 equal_tail:=  
 identifier:_  
 identifier:alphabet  

@@ -31,13 +31,14 @@ operator:==
 operator:<=  
 operator:>=  
 assignment_operator:=  
-assignment_operator:+ =  
-assignment_operator:- =  
-assignment_operator:* =  
-assignment_operator:/ =  
-assignment_operator:% =  
-assignment_operator:^ =  
-assignment_operator:& =  
+assignment_operator:+=  
+assignment_operator:-=  
+assignment_operator:*=  
+assignment_operator:/=  
+assignment_operator:%=  
+assignment_operator:^=  
+assignment_operator:&=  
+assignment_operator:|=  
 assignment_expression:identifier assignment_operator expression  
 assignment_expression_list_suffix:, assignment_expression assignment_expression_list_suffix  
 assignment_expression_list_suffix:$  
