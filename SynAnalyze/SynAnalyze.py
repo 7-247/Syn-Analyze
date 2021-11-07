@@ -1,6 +1,6 @@
 import os
 
-from LRDFA import LRDFANode
+from SynAnalyze.LRDFA import LRDFANode
 import pandas as pd
 import numpy as np
 
@@ -146,7 +146,7 @@ class SynAnalyze(object):
                     item_set.append(tuple(final_item))
         return item_set
 
-    def createLRTable(self):
+    def createLRTable(self,LRTable_path):
         all_status = dict()
         all_item_set = dict()
         def getLRDFANode(id):
@@ -254,7 +254,7 @@ class SynAnalyze(object):
         action[np.nan] = np.nan
         table = action.join(goto)
         table = table.drop(['$'], axis=1)
-        table.to_csv("table.csv")
+        table.to_csv(LRTable_path)
         #print("LR table:")
         #print(table)
 
@@ -359,4 +359,4 @@ if __name__ == '__main__':
     syn_ana.getTerminatorsAndNon()
     syn_ana.getFirstSets()
     syn_ana.createLRTable()
-    tree = syn_ana.analyze('token_table.data')
+    tree = syn_ana.analyze('../TOKEN-TABLE/token_table.data')

@@ -1,5 +1,5 @@
-from NFA import NFA, NFANode
-from DFA import DFA, DFANode
+from LexAnalyze.NFA import NFA, NFANode
+from LexAnalyze.DFA import DFA, DFANode
 digit = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
@@ -307,7 +307,7 @@ class LexAnalyze(object):
                 cur_pos += 1
             return cur_pos - 1, None, '', '未知错误'
  
-    def analyze(self, filename):
+    def analyze(self, filename,TokenTable_path):
         line_num = 0
         lex_error = False
         token_table = list()
@@ -332,7 +332,7 @@ class LexAnalyze(object):
  
         # 如果未出错，那么写入token表文件
         if not lex_error:
-            output = open('token_table.data', 'w+')
+            output = open(TokenTable_path, 'w+')
             for line_num, token_type, token in token_table:
                 output.write('%d %s %s\n' % (line_num, token_type, token))
             output.close()
@@ -348,4 +348,4 @@ if __name__ == '__main__':
     lex_ana.readLexGrammar('LexGrammar.txt')
     lex_ana.createNFA()
     lex_ana.createDFA()
-    lex_ana.analyze('source.cc')
+    lex_ana.analyze('../source/source.cc')
