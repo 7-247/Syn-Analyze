@@ -49,6 +49,8 @@ class LexAnalyze(object):
             sourcecode = sourcecode.split('\n')
         elif '\r' in sourcecode:
             sourcecode = sourcecode.split('\r')
+        else:
+            sourcecode = list([sourcecode])
         lines = [i.strip() for i in sourcecode]
         newcode = list()
         CrossLine_note_Flag = False

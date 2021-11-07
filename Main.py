@@ -8,8 +8,8 @@ LexGrammar_path = './LexAnalyze/LexGrammar.txt'  # 词法规则文件相对路�
 SynGrammar_path = './SynAnalyze/SynGrammar.txt'  # 语法规则文件相对路径
 TokenTable_path = './LexAnalyze/TOKEN-TABLE/token_table.data'  # 存储TOKEN表的相对路径
 LRTable_path = './SynAnalyze/LR-TABLE/LR-Table.csv'  # 存储LR表的相对路径
-tree_path="./templates/render.html"#存储语法树的路径
-SynAnalyzeProcess_path="./SynAnalyze/runOnLRTable/runOnLRTable.txt"#存储语法分析过程的路径
+tree_path = "./templates/render.html"  # 存储语法树的路径
+SynAnalyzeProcess_path = "./SynAnalyze/runOnLRTable/runOnLRTable.txt"  # 存储语法分析过程的路径
 
 app = Flask(__name__)
 
@@ -18,7 +18,7 @@ app = Flask(__name__)
 def index():
     if request.method == 'POST':
         user_input = request.form.get("name")
-        print(user_input)
+        user_input = user_input.replace('\r', "")
         fp = open(source_path, 'w')
         fp.write(user_input)
         fp.close()
@@ -37,12 +37,13 @@ def index():
         syn_ana.getTerminatorsAndNon()
         syn_ana.getFirstSets()
         syn_ana.createLRTable(LRTable_path)
-        Syn_flag,Syn_message=syn_ana.analyze(TokenTable_path,tree_path,SynAnalyzeProcess_path)
+        Syn_flag, Syn_message = syn_ana.analyze(
+            TokenTable_path, tree_path, SynAnalyzeProcess_path)
         if Syn_flag:
             return render_template('tree.html')
         else:
             print(Syn_message)
-            return render_template('error.html',message=Syn_message)
+            return render_template('error.html', message=Syn_message)
     return render_template('index.html')
 
 
