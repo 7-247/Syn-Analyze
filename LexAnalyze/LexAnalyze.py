@@ -45,10 +45,7 @@ class LexAnalyze(object):
     # 入口参数为字符串型源代码,返回值为预处理之后包含每一行源代码的字符串
 
     def Pretreatment(self, sourcecode):
-        if '\n' in sourcecode:
-            sourcecode = sourcecode.split('\n')
-        else:
-            sourcecode = list([sourcecode])
+        sourcecode = sourcecode.split('\n')
         lines = [i.strip() for i in sourcecode]
         newcode = list()
         CrossLine_note_Flag = False
