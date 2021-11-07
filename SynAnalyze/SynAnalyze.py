@@ -372,7 +372,7 @@ class SynAnalyze(object):
         data = pre_data[max(pre_data.keys())]
         Syn_tree = Tree().add("", data, orient="TB").set_global_opts(
             title_opts=opts.TitleOpts(title="Syn_Tree"))
-        Syn_tree.render()
+        Syn_tree.render(path="./templates/render.html")
 
     def analyze(self, filename):
         token_table = open(filename, 'r')
