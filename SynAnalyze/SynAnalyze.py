@@ -368,7 +368,7 @@ class SynAnalyze(object):
             if 'children' not in pre_data[i[2]][i[3]]:
                 pre_data[i[2]][i[3]]['children'] = list()
             pre_data[i[2]][i[3]]['children'].insert(
-                0, pre_data[i[0]][i[1] - 1])
+                0, pre_data[i[0]][i[1]])
         data = pre_data[max(pre_data.keys())]
         Syn_tree = Tree().add("", data, orient="TB").set_global_opts(
             title_opts=opts.TitleOpts(title="Syn_Tree"))
