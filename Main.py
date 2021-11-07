@@ -1,5 +1,5 @@
-from SynAnalyze.SynAnalyze import SynAnalyze
-from LexAnalyze.LexAnalyze import LexAnalyze
+from SynAnalyze import SynAnalyze
+from LexAnalyze import LexAnalyze
 
 source_path='./source/source.cc'                            #源文件相对路径
 LexGrammar_path='./LexAnalyze/LexGrammar.txt'               #词法规则文件相对路径

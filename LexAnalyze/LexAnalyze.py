@@ -1,5 +1,10 @@
-from LexAnalyze.NFA import NFA, NFANode
-from LexAnalyze.DFA import DFA, DFANode
+if __name__ == '__main__':
+    from NFA import NFA, NFANode
+    from DFA import DFA, DFANode
+else:
+    from LexAnalyze.NFA import NFA, NFANode
+    from LexAnalyze.DFA import DFA, DFANode
+
 digit = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
@@ -336,16 +341,20 @@ class LexAnalyze(object):
             for line_num, token_type, token in token_table:
                 output.write('%d %s %s\n' % (line_num, token_type, token))
             output.close()
-            print("lex analyze complete")
+            print("Lex analyze complete!")
             return True
         else:
-            print("lex analyze failed")
+            print("Lex analyze failed!")
         return False
  
  
 if __name__ == '__main__':
+    source_path='../source/source.cc'                            #源文件相对路径
+    LexGrammar_path='./LexGrammar.txt'                           #词法规则文件相对路径
+    TokenTable_path='./TOKEN-TABLE/token_table.data'  #存储TOKEN表的相对路径
+
     lex_ana = LexAnalyze()
-    lex_ana.readLexGrammar('LexGrammar.txt')
+    lex_ana.readLexGrammar(LexGrammar_path)
     lex_ana.createNFA()
     lex_ana.createDFA()
-    lex_ana.analyze('../source/source.cc')
+    lex_ana.analyze(source_path,TokenTable_path)

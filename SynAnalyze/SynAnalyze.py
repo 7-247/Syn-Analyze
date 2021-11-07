@@ -1,8 +1,10 @@
-import os
-
-from SynAnalyze.LRDFA import LRDFANode
+if __name__ == '__main__':
+    from LRDFA import LRDFANode
+else:
+    from SynAnalyze.LRDFA import LRDFANode
 import pandas as pd
 import numpy as np
+import os
 
 
 class SynAnalyze(object):
@@ -354,9 +356,13 @@ class SynAnalyze(object):
 
 
 if __name__ == '__main__':
+    SynGrammar_path='./SynGrammar.txt'               #语法规则文件相对路径
+    TokenTable_path='../LexAnalyze/TOKEN-TABLE/token_table.data' #存储TOKEN表的相对路径
+    LRTable_path='./LR-TABLE/LR-Table.csv'           #存储LR表的相对路径
+
     syn_ana = SynAnalyze()
-    syn_ana.readSynGrammar('SynGrammar.txt')
+    syn_ana.readSynGrammar(SynGrammar_path)
     syn_ana.getTerminatorsAndNon()
     syn_ana.getFirstSets()
-    syn_ana.createLRTable()
-    tree = syn_ana.analyze('../TOKEN-TABLE/token_table.data')
+    syn_ana.createLRTable(LRTable_path)
+    tree = syn_ana.analyze(TokenTable_path)
