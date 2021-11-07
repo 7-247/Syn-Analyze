@@ -15,7 +15,8 @@ keyword = ['int', 'double', 'char', 'float', 'break', 'continue',
 
 
 class LexAnalyze(object):
-    "词法分析类"
+    """词法分析类"""
+
     def __init__(self):
         self.productions = list()       # 产生式列表
         self.alphabets = dict()         # 字母表（终结符）
@@ -29,7 +30,7 @@ class LexAnalyze(object):
             self.keywords[word] = 'keyword'
 
     def removenote(self, string):
-        "用于调用，去除注释"
+        """用于调用，去除注释"""
         CrossLine = False
         a, b = string.find('//'), string.find('/*')
         if a != -1 and (a < b or b == -1):
@@ -47,7 +48,7 @@ class LexAnalyze(object):
     # 入口参数为字符串型源代码,返回值为预处理之后包含每一行源代码的字符串
 
     def Pretreatment(self, sourcecode):
-        "去除注释"
+        """去除注释"""
         sourcecode = sourcecode.split('\n')
         lines = [i.strip() for i in sourcecode]
         newcode = list()
@@ -68,7 +69,7 @@ class LexAnalyze(object):
         return newcode
 
     def readLexGrammar(self, filename):
-        "读取词法规则"
+        """读取词法规则"""
         line_num = 0
         for line in open(filename, 'r'):
             line = line.split('\n')[0].strip()
@@ -93,7 +94,7 @@ class LexAnalyze(object):
             self.productions.append(production)
 
     def createNFA(self):
-        "创建NFA"
+        """创建NFA"""
         all_status = dict()
 
         def getNFANode(name, isFinal):
@@ -142,13 +143,13 @@ class LexAnalyze(object):
 
         # NFA的终结符集合
         terminators = list()
-        for i in range(ord(' '), ord('~') + 1):#全部合法的文本字符
+        for i in range(ord(' '), ord('~') + 1):  # 全部合法的文本字符
             terminators.append(chr(i))
         self.NFA = NFA(terminators)
         self.NFA.status = all_status
 
     def createDFA(self):
-        "创建对应的DFA"
+        """创建对应的DFA"""
         all_status = dict()
 
         def getDFANode(name, isFinal):
@@ -227,13 +228,13 @@ class LexAnalyze(object):
 
         # DFA的终结符集合
         terminators = list()
-        for i in range(ord(' '), ord('~') + 1):#全部合法的文本字符
+        for i in range(ord(' '), ord('~') + 1):  # 全部合法的文本字符
             terminators.append(chr(i))
         self.DFA = DFA(terminators)
         self.DFA.status = all_status
 
     def runOnDFA(self, line, pos):
-        "开始分析"
+        """开始分析"""
         if line[pos] in self.alphabets['alphabet'] or line[pos] == '_':
             final_pos = pos
             final_str = ''
@@ -367,11 +368,11 @@ class LexAnalyze(object):
             return cur_pos - 1, None, '', '非法文本字符'
 
     def analyze(self, codelist, TokenTable_path):
-        "顶层函数"
+        """顶层函数"""
         line_num = 0
         lex_error = False
         token_table = list()
-        error_message=None
+        error_message = None
         for line in codelist:
             pos = 0
             line_num += 1
@@ -382,7 +383,8 @@ class LexAnalyze(object):
                 if pos < len(line):
                     pos, token_type, token, message = self.runOnDFA(line, pos)
                     if token_type is None:
-                        error_message='Lexical error at line %s, column %s : %s' % (str(line_num), str(pos), message)
+                        error_message = 'Lexical error at line %s, column %s : %s' % (
+                            str(line_num), str(pos), message)
                         print(error_message)
                         lex_error = True
                         # break
@@ -397,10 +399,10 @@ class LexAnalyze(object):
                 output.write('%d %s %s\n' % (line_num, token_type, token))
             output.close()
             print("Lex analyze complete!")
-            return True,error_message
+            return True, error_message
         else:
             print("Lex analyze failed!")
-        return False,error_message
+        return False, error_message
 
 
 if __name__ == '__main__':

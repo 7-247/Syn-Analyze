@@ -10,7 +10,8 @@ from pyecharts.charts import Tree
 
 
 class SynAnalyze(object):
-    "语法分析类"
+    """语法分析类"""
+
     def __init__(self):
         self.firstSet = dict()              # 终结符和非终结符的first集
         self.productions = list()           # 产生式列表
@@ -36,7 +37,7 @@ class SynAnalyze(object):
             self.productions.append(production)
 
     def getTerminatorsAndNon(self):
-        "得到终结符和非终结符"
+        """得到终结符和非终结符"""
         all_elem = list()
         for production in self.productions:
             for left in production.keys():
@@ -60,7 +61,7 @@ class SynAnalyze(object):
                 self.terminators.append(i)
 
     def getFirstSetForOne(self, cur_status, is_visit):
-        "求单个符号的First集"
+        """求单个符号的First集"""
         # 如果当前符号的first集已经算过，则直接返回
         if cur_status in self.firstSet.keys():
             return self.firstSet[cur_status]
@@ -102,7 +103,7 @@ class SynAnalyze(object):
         return cur_first_set
 
     def getFirstSets(self):
-        "求First集"
+        """求First集"""
         for terminator in self.terminators:
             self.firstSet[terminator] = self.getFirstSetForOne(
                 terminator, list())
@@ -112,7 +113,7 @@ class SynAnalyze(object):
 
     # cur_item: (产生式编号，产生式左侧，产生式右侧符号列表，圆点位置，向前搜索符集合)
     def getClosure(self, cur_item, item_set):
-        "求闭包"
+        """求闭包"""
         item_set.append(cur_item)
         right_list = cur_item[2]
         point_index = cur_item[3]
@@ -164,7 +165,7 @@ class SynAnalyze(object):
         return item_set
 
     def createLRTable(self, LRTable_path):
-        "创建LR分析表,若文法不是LR1的 返回False"
+        """创建LR分析表,若文法不是LR1的 返回False"""
         all_status = dict()
         all_item_set = dict()
 
@@ -285,8 +286,8 @@ class SynAnalyze(object):
         table.to_csv(LRTable_path)
         return True
 
-    def runOnLRTable(self, tokens,SynAnalyzeProcess_path):
-        "开始分析"
+    def runOnLRTable(self, tokens, SynAnalyzeProcess_path):
+        """开始分析"""
         status_stack = [0]  # 状态栈
         symbol_stack = [('#', -1, 1)]  # 符号栈
         tree_layer = list()
@@ -295,8 +296,8 @@ class SynAnalyze(object):
         tokens.reverse()
         isSuccess = False
         step = 0
-        fp=open(SynAnalyzeProcess_path,'w')#分析过程存在这里
-        message=''#报错信息/成功信息
+        fp = open(SynAnalyzeProcess_path, 'w')  # 分析过程存在这里
+        message = ''  # 报错信息/成功信息
         while True:
             step += 1
             top_status = status_stack[-1]
@@ -307,7 +308,7 @@ class SynAnalyze(object):
             # print('status stack:')
             # print(status_stack)
             # print()
-            fp.write('\ntoken:%s'%now_token)
+            fp.write('\ntoken:%s' % now_token)
             fp.write('\nsymbol stack:\n')
             fp.write(str(symbol_stack))
             fp.write('\nstatus stack:\n')
@@ -365,23 +366,24 @@ class SynAnalyze(object):
             else:  # 无法进行状态转移，报错
                 #print('line %s' % now_line_num)
                 #print('found: %s' % now_token)
-                #print('expecting:')
-                message+='\nline %s\n' % now_line_num+'found: %s\n' % now_token+'expecting:\n'
+                # print('expecting:')
+                message += '\nline %s\n' % now_line_num + \
+                    'found: %s\n' % now_token+'expecting:\n'
                 for exp in self.LRTable[top_status].keys():
-                    #print(exp)
-                    message+=exp+'\n'
+                    # print(exp)
+                    message += exp+'\n'
                 break
-        if isSuccess==True:
-            message+= '\nSyntax Analyze Successfully!\n'
+        if isSuccess == True:
+            message += '\nSyntax Analyze Successfully!\n'
         else:
-            message+= '\nSyntax Error!\n'
+            message += '\nSyntax Error!\n'
         fp.write(message)
         fp.close()
         print(message)
-        return isSuccess, tree_layer, tree_line,message
+        return isSuccess, tree_layer, tree_line, message
 
-    def get_tree(self, tree_layer, tree_line,tree_path):
-        "获取画语法树所需信息"
+    def get_tree(self, tree_layer, tree_line, tree_path):
+        """获取画语法树所需信息"""
         pre_data = dict()
         for i in tree_layer:
             if i[1] not in pre_data:
@@ -397,9 +399,9 @@ class SynAnalyze(object):
             title_opts=opts.TitleOpts(title="Syn_Tree"))
         Syn_tree.render(path=tree_path)
 
-    def analyze(self, token_table_path,tree_path,SynAnalyzeProcess_path):
-        "语法分析，顶层函数"
-        token_table = open(token_table_path, 'r')#读token表并处理
+    def analyze(self, token_table_path, tree_path, SynAnalyzeProcess_path):
+        """语法分析，顶层函数"""
+        token_table = open(token_table_path, 'r')  # 读token表并处理
         tokens = list()
         for line in token_table:
             line = line[:-1]
@@ -411,22 +413,24 @@ class SynAnalyze(object):
                 tokens.append((line.split(' ')[0], next_token))
         tokens.append((str(0), '#'))
         token_table.close()
-        isSuccess, tree_layer, tree_line,message = self.runOnLRTable(tokens,SynAnalyzeProcess_path)#分析
-        if isSuccess:#成功
-            self.get_tree(tree_layer, tree_line,tree_path)
-            return True,message
+        isSuccess, tree_layer, tree_line, message = self.runOnLRTable(
+            tokens, SynAnalyzeProcess_path)  # 分析
+        if isSuccess:  # 成功
+            self.get_tree(tree_layer, tree_line, tree_path)
+            return True, message
         else:
-            return False,message
+            return False, message
 
 
 if __name__ == '__main__':
     SynGrammar_path = './SynGrammar.txt'  # 语法规则文件相对路径
     TokenTable_path = '../LexAnalyze/TOKEN-TABLE/token_table.data'  # 存储TOKEN表的相对路径
     LRTable_path = './LR-TABLE/LR-Table.csv'  # 存储LR表的相对路径
-    
+
     syn_ana = SynAnalyze()
     syn_ana.readSynGrammar(SynGrammar_path)
     syn_ana.getTerminatorsAndNon()
     syn_ana.getFirstSets()
     syn_ana.createLRTable(LRTable_path)
-    syn_ana.analyze(TokenTable_path,tree_path="../templates/render.html",SynAnalyzeProcess_path="./runOnLRTable/runOnLRTable.txt")
+    syn_ana.analyze(TokenTable_path, tree_path="../templates/render.html",
+                    SynAnalyzeProcess_path="./runOnLRTable/runOnLRTable.txt")
