@@ -6,7 +6,23 @@ int a;
 
 
 
+
+
+
+
+
+
+
+
 int b;
+
+
+
+
+
+
+
+
 
 
 
@@ -22,7 +38,23 @@ int program(int a,int b,int c)
 
 
 
+
+
+
+
+
+
+
+
 {
+
+
+
+
+
+
+
+
 
 
 
@@ -38,7 +70,23 @@ int program(int a,int b,int c)
 
 
 
+
+
+
+
+
+
+
+
 	int j;
+
+
+
+
+
+
+
+
 
 
 
@@ -54,6 +102,14 @@ int program(int a,int b,int c)
 
 
 
+
+
+
+
+
+
+
+
 	if(a>(b+c))
 
 
@@ -62,7 +118,23 @@ int program(int a,int b,int c)
 
 
 
+
+
+
+
+
+
+
+
 	{
+
+
+
+
+
+
+
+
 
 
 
@@ -78,7 +150,23 @@ int program(int a,int b,int c)
 
 
 
+
+
+
+
+
+
+
+
 	}
+
+
+
+
+
+
+
+
 
 
 
@@ -94,7 +182,23 @@ int program(int a,int b,int c)
 
 
 
+
+
+
+
+
+
+
+
 	{
+
+
+
+
+
+
+
+
 
 
 
@@ -110,7 +214,23 @@ int program(int a,int b,int c)
 
 
 
+
+
+
+
+
+
+
+
 	}
+
+
+
+
+
+
+
+
 
 
 
@@ -126,7 +246,23 @@ int program(int a,int b,int c)
 
 
 
+
+
+
+
+
+
+
+
 	{
+
+
+
+
+
+
+
+
 
 
 
@@ -142,7 +278,23 @@ int program(int a,int b,int c)
 
 
 
+
+
+
+
+
+
+
+
 	}
+
+
+
+
+
+
+
+
 
 
 
@@ -158,7 +310,23 @@ int program(int a,int b,int c)
 
 
 
+
+
+
+
+
+
+
+
 }
+
+
+
+
+
+
+
+
 
 
 
@@ -174,7 +342,23 @@ int demo(int a)
 
 
 
+
+
+
+
+
+
+
+
 {
+
+
+
+
+
+
+
+
 
 
 
@@ -190,7 +374,23 @@ int demo(int a)
 
 
 
+
+
+
+
+
+
+
+
 	return a*2;
+
+
+
+
+
+
+
+
 
 
 
@@ -206,7 +406,23 @@ int demo(int a)
 
 
 
+
+
+
+
+
+
+
+
 void main(void)
+
+
+
+
+
+
+
+
 
 
 
@@ -222,7 +438,23 @@ void main(void)
 
 
 
+
+
+
+
+
+
+
+
 	int a;
+
+
+
+
+
+
+
+
 
 
 
@@ -238,7 +470,23 @@ void main(void)
 
 
 
+
+
+
+
+
+
+
+
 	int c;
+
+
+
+
+
+
+
+
 
 
 
@@ -254,7 +502,23 @@ void main(void)
 
 
 
+
+
+
+
+
+
+
+
 	b=4;
+
+
+
+
+
+
+
+
 
 
 
@@ -270,6 +534,14 @@ void main(void)
 
 
 
+
+
+
+
+
+
+
+
 	a=program(a,b,demo(c));
 
 
@@ -278,7 +550,23 @@ void main(void)
 
 
 
+
+
+
+
+
+
+
+
 	return;
+
+
+
+
+
+
+
+
 
 
 
