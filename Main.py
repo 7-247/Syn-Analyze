@@ -29,8 +29,10 @@ def index():
         lex_ana.createNFA()
         lex_ana.createDFA()
         codelist = lex_ana.Pretreatment(user_input)
-        lex_ana.analyze(codelist, TokenTable_path)
-
+        Lex_flag,Lex_message=lex_ana.analyze(codelist, TokenTable_path)
+        if Lex_flag==False:
+            return render_template("error.html",message=Lex_message)
+            
         # 语法分析
         syn_ana = SynAnalyze()
         syn_ana.readSynGrammar(SynGrammar_path)
