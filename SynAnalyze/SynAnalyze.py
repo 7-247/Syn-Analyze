@@ -5,6 +5,8 @@ else:
 import pandas as pd
 import numpy as np
 import os
+from pyecharts import options as opts
+from pyecharts.charts import Tree
 
 
 class SynAnalyze(object):
@@ -67,7 +69,8 @@ class SynAnalyze(object):
         # 如果当前符号是非终结符，则继续计算
         if cur_status not in is_visit:
             is_visit.append(cur_status)
-        for right_list in self.productionsDict[cur_status]:  # 对左边为该非终结符的所有产生式进行计算
+        # 对左边为该非终结符的所有产生式进行计算
+        for right_list in self.productionsDict[cur_status]:
             flag = True
             for right in right_list[0]:
                 if right == '$':
@@ -96,17 +99,21 @@ class SynAnalyze(object):
 
     def getFirstSets(self):
         for terminator in self.terminators:
-            self.firstSet[terminator] = self.getFirstSetForOne(terminator, list())
+            self.firstSet[terminator] = self.getFirstSetForOne(
+                terminator, list())
         for nonterminator in self.nonTerminators:
-            self.firstSet[nonterminator] = self.getFirstSetForOne(nonterminator, list())
+            self.firstSet[nonterminator] = self.getFirstSetForOne(
+                nonterminator, list())
 
-    def getClosure(self, cur_item, item_set):  # cur_item: (产生式编号，产生式左侧，产生式右侧符号列表，圆点位置，向前搜索符集合)
+    # cur_item: (产生式编号，产生式左侧，产生式右侧符号列表，圆点位置，向前搜索符集合)
+    def getClosure(self, cur_item, item_set):
         # item_set = list()
         item_set.append(cur_item)
         right_list = cur_item[2]
         point_index = cur_item[3]
         tail_set = cur_item[4]
-        if point_index < len(right_list) and (right_list[point_index] in self.nonTerminators):  # 圆点后为非终结符才继续增大项目集
+        # 圆点后为非终结符才继续增大项目集
+        if point_index < len(right_list) and (right_list[point_index] in self.nonTerminators):
             # 计算以该非终结符为左侧的产生式的向前搜索符集合
             new_tail_set = list()
             flag = True
@@ -126,8 +133,10 @@ class SynAnalyze(object):
                 for j in tail_set:
                     if j not in new_tail_set:
                         new_tail_set.append(j)
-            for pro_list in self.productionsDict[right_list[point_index]]:  # 对以圆点后非终结符为左侧的产生式进行遍历
-                new_item = (pro_list[1], right_list[point_index], pro_list[0], 0, tuple(new_tail_set))
+            # 对以圆点后非终结符为左侧的产生式进行遍历
+            for pro_list in self.productionsDict[right_list[point_index]]:
+                new_item = (pro_list[1], right_list[point_index],
+                            pro_list[0], 0, tuple(new_tail_set))
                 if new_item not in item_set:  # 递归计算
                     for i in self.getClosure(new_item, item_set):
                         if i not in item_set:
@@ -143,14 +152,16 @@ class SynAnalyze(object):
                         new_item_set[tuple(pro_key)].append(i)
             item_set = list()
             for key in new_item_set.keys():
-                final_item = (key[0], key[1], key[2], key[3], tuple(new_item_set[key]))
+                final_item = (key[0], key[1], key[2], key[3],
+                              tuple(new_item_set[key]))
                 if tuple(final_item) not in item_set:
                     item_set.append(tuple(final_item))
         return item_set
 
-    def createLRTable(self,LRTable_path):
+    def createLRTable(self, LRTable_path):
         all_status = dict()
         all_item_set = dict()
+
         def getLRDFANode(id):
             if id in all_status:
                 return all_status[id]
@@ -160,7 +171,8 @@ class SynAnalyze(object):
         # 建立开始项目集 I0
         start_id = 0
         start_node = getLRDFANode(start_id)
-        start_item_set = self.getClosure((0, 'sstart', ('start',), 0, ('#',)), list())
+        start_item_set = self.getClosure(
+            (0, 'sstart', ('start',), 0, ('#',)), list())
         start_node.addItemSetBySet(start_item_set)
         all_item_set[tuple(start_item_set)] = start_id
         all_status[start_id] = start_node
@@ -191,11 +203,13 @@ class SynAnalyze(object):
                             print('当前文法不属于LR(1)文法！！！')
                             return
                         if pro_id:
-                            self.LRTable[now_node_id][tail] = ('r', pro_id)  # 用第 pro_id 个产生式进行归约
+                            self.LRTable[now_node_id][tail] = (
+                                'r', pro_id)  # 用第 pro_id 个产生式进行归约
                         else:
                             self.LRTable[now_node_id][tail] = ('acc',)
                 else:
-                    next_item = (pro_id, left, right_list, point_index + 1, tail_set)
+                    next_item = (pro_id, left, right_list,
+                                 point_index + 1, tail_set)
                     next_item_set = self.getClosure(next_item, list())
                     next_c = right_list[point_index]
                     for ex_item in now_item_set:  # 对后一个字符相同的其他产生式也要求闭包，并取并
@@ -206,7 +220,8 @@ class SynAnalyze(object):
                         if ex_point_index < len(ex_right_list) and ex_right_list[ex_point_index] == next_c:
                             if ex_item not in is_visit:
                                 is_visit.append(ex_item)
-                            ex_next_item = (ex_item[0], ex_item[1], ex_item[2], ex_point_index + 1, ex_item[4])
+                            ex_next_item = (
+                                ex_item[0], ex_item[1], ex_item[2], ex_point_index + 1, ex_item[4])
                             for i in self.getClosure(ex_next_item, list()):
                                 if i not in next_item_set:
                                     next_item_set.append(i)
@@ -221,7 +236,8 @@ class SynAnalyze(object):
                                 new_item_set[tuple(pro_key)].append(i)
                     next_item_set = list()
                     for key in new_item_set.keys():
-                        final_item = (key[0], key[1], key[2], key[3], tuple(new_item_set[key]))
+                        final_item = (key[0], key[1], key[2],
+                                      key[3], tuple(new_item_set[key]))
                         if tuple(final_item) not in next_item_set:
                             next_item_set.append(tuple(final_item))
                     if tuple(next_item_set) in all_item_set.keys():  # 该项目集已经处理过
@@ -240,13 +256,17 @@ class SynAnalyze(object):
                         print('当前文法不属于LR(1)文法！！！')
                         return
                     if right_list[point_index] in self.terminators:
-                        self.LRTable[now_node_id][right_list[point_index]] = ('S', next_node_id)
+                        self.LRTable[now_node_id][right_list[point_index]] = (
+                            'S', next_node_id)
                     else:
-                        self.LRTable[now_node_id][right_list[point_index]] = ('G', next_node_id)
+                        self.LRTable[now_node_id][right_list[point_index]] = (
+                            'G', next_node_id)
         actColumns = self.terminators
         actColumns.append("#")
-        action = pd.DataFrame(index=list(self.LRTable.keys()), columns=actColumns)
-        goto = pd.DataFrame(index=list(self.LRTable.keys()), columns=self.nonTerminators)
+        action = pd.DataFrame(index=list(
+            self.LRTable.keys()), columns=actColumns)
+        goto = pd.DataFrame(index=list(self.LRTable.keys()),
+                            columns=self.nonTerminators)
         for i in self.LRTable.keys():
             for j in self.LRTable[i].keys():
                 if self.LRTable[i][j][0] == 'G':
@@ -258,11 +278,11 @@ class SynAnalyze(object):
         table = table.drop(['$'], axis=1)
         table.to_csv(LRTable_path)
         #print("LR table:")
-        #print(table)
+        # print(table)
 
     def runOnLRTable(self, tokens):
         status_stack = [0]  # 状态栈
-        symbol_stack = [('#',-1,1)]  # 符号栈
+        symbol_stack = [('#', -1, 1)]  # 符号栈
         tree_layer = list()
         tree_layer_num = list()
         tree_line = list()
@@ -287,12 +307,12 @@ class SynAnalyze(object):
                     break
                 elif action[0] == 'S':
                     if len(tree_layer_num) == 0:
-                        tree_layer_num.append(1)
+                        tree_layer_num.append(0)
                     else:
                         tree_layer_num[0] += 1
                     status_stack.append(action[1])
-                    symbol_stack.append((now_token,0,tree_layer_num[0]))
-                    tree_layer.append((now_token,0,tree_layer_num[0]))
+                    symbol_stack.append((now_token, 0, tree_layer_num[0]))
+                    tree_layer.append((now_token, 0, tree_layer_num[0]))
                     tokens = tokens[:-1]
                 elif action[0] == 'r':
                     production = self.productions[action[1]]
@@ -302,30 +322,33 @@ class SynAnalyze(object):
                         right_length = len(production[left])
                         status_stack = status_stack[:-right_length]
                         #symbol_stack = symbol_stack[:-right_length]
-                        for i in range(len(symbol_stack) - 1,len(symbol_stack) - right_length - 1,-1):
-                            next_line = max(next_line,symbol_stack[i][1])
-                            tree_line.append([symbol_stack[i][1],symbol_stack[i][2],0,0])
+                        for i in range(len(symbol_stack) - 1, len(symbol_stack) - right_length - 1, -1):
+                            next_line = max(next_line, symbol_stack[i][1])
+                            tree_line.append(
+                                [symbol_stack[i][1], symbol_stack[i][2], 0, 0])
                             symbol_stack.pop(i)
                         next_line += 1
                     else:
                         next_line = 1
                         right_length = 1
                         if len(tree_layer_num) == 0:
-                            tree_layer_num.append(1)
+                            tree_layer_num.append(0)
                         else:
                             tree_layer_num[0] += 1
-                        tree_layer.append(('$',0,tree_layer_num[0]))
-                        tree_line.append([0,tree_layer_num[0],0,0])
+                        tree_layer.append(('$', 0, tree_layer_num[0]))
+                        tree_line.append([0, tree_layer_num[0], 0, 0])
                     go = self.LRTable[status_stack[-1]][left]  # 归约时判断接下来的状态
                     if next_line == len(tree_layer_num):
-                        tree_layer_num.append(1)
+                        tree_layer_num.append(0)
                     else:
                         tree_layer_num[next_line] += 1
                     for i in tree_line[-right_length:]:
-                        i[2],i[3] = next_line,tree_layer_num[next_line]
+                        i[2], i[3] = next_line, tree_layer_num[next_line]
                     status_stack.append(go[1])
-                    symbol_stack.append((left,next_line,tree_layer_num[next_line]))
-                    tree_layer.append((left,next_line,tree_layer_num[next_line]))
+                    symbol_stack.append(
+                        (left, next_line, tree_layer_num[next_line]))
+                    tree_layer.append(
+                        (left, next_line, tree_layer_num[next_line]))
             else:  # 无法进行状态转移，报错
                 print('line %s' % now_line_num)
                 print('found: %s' % now_token)
@@ -333,7 +356,23 @@ class SynAnalyze(object):
                 for exp in self.LRTable[top_status].keys():
                     print(exp)
                 break
-        return isSuccess,(tree_layer,tree_line)
+        return isSuccess, tree_layer, tree_line
+
+    def get_tree(self, tree_layer, tree_line):
+        pre_data = dict()
+        for i in tree_layer:
+            if i[1] not in pre_data:
+                pre_data[i[1]] = list()
+            pre_data[i[1]].append({'name': i[0]})
+        for i in tree_line:
+            if 'children' not in pre_data[i[2]][i[3]]:
+                pre_data[i[2]][i[3]]['children'] = list()
+            pre_data[i[2]][i[3]]['children'].insert(
+                0, pre_data[i[0]][i[1] - 1])
+        data = pre_data[max(pre_data.keys())]
+        Syn_tree = Tree().add("", data, orient="TB").set_global_opts(
+            title_opts=opts.TitleOpts(title="Syn_Tree"))
+        Syn_tree.render()
 
     def analyze(self, filename):
         token_table = open(filename, 'r')
@@ -347,22 +386,22 @@ class SynAnalyze(object):
                 next_token = line.split(' ')[2]
                 tokens.append((line.split(' ')[0], next_token))
         tokens.append((str(0), '#'))
-        isSuccess,tree = self.runOnLRTable(tokens)
+        isSuccess, tree_layer, tree_line = self.runOnLRTable(tokens)
+        self.get_tree(tree_layer, tree_line)
         if isSuccess:
             print('Syntax Analyze Successfully!')
         else:
             print('Syntax Error!')
-        return tree
 
 
 if __name__ == '__main__':
-    SynGrammar_path='./SynGrammar.txt'               #语法规则文件相对路径
-    TokenTable_path='../LexAnalyze/TOKEN-TABLE/token_table.data' #存储TOKEN表的相对路径
-    LRTable_path='./LR-TABLE/LR-Table.csv'           #存储LR表的相对路径
+    SynGrammar_path = './SynGrammar.txt'  # 语法规则文件相对路径
+    TokenTable_path = '../LexAnalyze/TOKEN-TABLE/token_table.data'  # 存储TOKEN表的相对路径
+    LRTable_path = './LR-TABLE/LR-Table.csv'  # 存储LR表的相对路径
 
     syn_ana = SynAnalyze()
     syn_ana.readSynGrammar(SynGrammar_path)
     syn_ana.getTerminatorsAndNon()
     syn_ana.getFirstSets()
     syn_ana.createLRTable(LRTable_path)
-    tree = syn_ana.analyze(TokenTable_path)
+    syn_ana.analyze(TokenTable_path)
