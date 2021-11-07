@@ -10,15 +10,17 @@ from pyecharts.charts import Tree
 
 
 class SynAnalyze(object):
+    "语法分析类"
     def __init__(self):
-        self.firstSet = dict()  # 终结符和非终结符的first集
-        self.productions = list()  # 产生式列表
-        self.terminators = list()  # 终结符集合
-        self.nonTerminators = list()  # 非终结符集合
-        self.productionsDict = dict()  # 将产生式集合按照左侧的非终结符归类
-        self.LRTable = dict()  # LR(1)分析表
+        self.firstSet = dict()              # 终结符和非终结符的first集
+        self.productions = list()           # 产生式列表
+        self.terminators = list()           # 终结符集合
+        self.nonTerminators = list()        # 非终结符集合
+        self.productionsDict = dict()       # 将产生式集合按照左侧的非终结符归类
+        self.LRTable = dict()               # LR(1)分析表
 
     def readSynGrammar(self, filename):
+        "读语法分析规则，得到产生式，储存在production中"
         for line in open(filename, 'r'):
             line = line.strip()
             cur_left = line.split(':')[0]
@@ -34,6 +36,7 @@ class SynAnalyze(object):
             self.productions.append(production)
 
     def getTerminatorsAndNon(self):
+        "得到终结符和非终结符"
         all_elem = list()
         for production in self.productions:
             for left in production.keys():
@@ -57,6 +60,7 @@ class SynAnalyze(object):
                 self.terminators.append(i)
 
     def getFirstSetForOne(self, cur_status, is_visit):
+        "求单个符号的First集"
         # 如果当前符号的first集已经算过，则直接返回
         if cur_status in self.firstSet.keys():
             return self.firstSet[cur_status]
@@ -98,6 +102,7 @@ class SynAnalyze(object):
         return cur_first_set
 
     def getFirstSets(self):
+        "求First集"
         for terminator in self.terminators:
             self.firstSet[terminator] = self.getFirstSetForOne(
                 terminator, list())
@@ -107,7 +112,7 @@ class SynAnalyze(object):
 
     # cur_item: (产生式编号，产生式左侧，产生式右侧符号列表，圆点位置，向前搜索符集合)
     def getClosure(self, cur_item, item_set):
-        # item_set = list()
+        "求闭包"
         item_set.append(cur_item)
         right_list = cur_item[2]
         point_index = cur_item[3]
@@ -159,6 +164,7 @@ class SynAnalyze(object):
         return item_set
 
     def createLRTable(self, LRTable_path):
+        "创建LR分析表,若文法不是LR1的 返回False"
         all_status = dict()
         all_item_set = dict()
 
@@ -201,7 +207,7 @@ class SynAnalyze(object):
                     for tail in tail_set:
                         if tail in self.LRTable[now_node_id].keys():
                             print('当前文法不属于LR(1)文法！！！')
-                            return
+                            return False
                         if pro_id:
                             self.LRTable[now_node_id][tail] = (
                                 'r', pro_id)  # 用第 pro_id 个产生式进行归约
@@ -254,7 +260,7 @@ class SynAnalyze(object):
                         self.LRTable[now_node_id] = dict()
                     if right_list[point_index] in self.LRTable[now_node_id].keys():
                         print('当前文法不属于LR(1)文法！！！')
-                        return
+                        return False
                     if right_list[point_index] in self.terminators:
                         self.LRTable[now_node_id][right_list[point_index]] = (
                             'S', next_node_id)
@@ -277,10 +283,10 @@ class SynAnalyze(object):
         table = action.join(goto)
         table = table.drop(['$'], axis=1)
         table.to_csv(LRTable_path)
-        #print("LR table:")
-        # print(table)
+        return True
 
-    def runOnLRTable(self, tokens):
+    def runOnLRTable(self, tokens,SynAnalyzeProcess_path):
+        "开始分析"
         status_stack = [0]  # 状态栈
         symbol_stack = [('#', -1, 1)]  # 符号栈
         tree_layer = list()
@@ -289,6 +295,8 @@ class SynAnalyze(object):
         tokens.reverse()
         isSuccess = False
         step = 0
+        fp=open(SynAnalyzeProcess_path,'w')#分析过程存在这里
+        message=''#报错信息/成功信息
         while True:
             step += 1
             top_status = status_stack[-1]
@@ -299,7 +307,12 @@ class SynAnalyze(object):
             # print('status stack:')
             # print(status_stack)
             # print()
-            # os.system("pause")
+            fp.write('\ntoken:%s'%now_token)
+            fp.write('\nsymbol stack:\n')
+            fp.write(str(symbol_stack))
+            fp.write('\nstatus stack:\n')
+            fp.write(str(status_stack))
+
             if now_token in self.LRTable[top_status].keys():  # 进行状态转移
                 action = self.LRTable[top_status][now_token]
                 if action[0] == 'acc':
@@ -350,15 +363,25 @@ class SynAnalyze(object):
                     tree_layer.append(
                         (left, next_line, tree_layer_num[next_line]))
             else:  # 无法进行状态转移，报错
-                print('line %s' % now_line_num)
-                print('found: %s' % now_token)
-                print('expecting:')
+                #print('line %s' % now_line_num)
+                #print('found: %s' % now_token)
+                #print('expecting:')
+                message+='\nline %s\n' % now_line_num+'found: %s\n' % now_token+'expecting:\n'
                 for exp in self.LRTable[top_status].keys():
-                    print(exp)
+                    #print(exp)
+                    message+=exp+'\n'
                 break
-        return isSuccess, tree_layer, tree_line
+        if isSuccess==True:
+            message+= '\nSyntax Analyze Successfully!\n'
+        else:
+            message+= '\nSyntax Error!\n'
+        fp.write(message)
+        fp.close()
+        print(message)
+        return isSuccess, tree_layer, tree_line,message
 
-    def get_tree(self, tree_layer, tree_line):
+    def get_tree(self, tree_layer, tree_line,tree_path):
+        "获取画语法树所需信息"
         pre_data = dict()
         for i in tree_layer:
             if i[1] not in pre_data:
@@ -372,10 +395,11 @@ class SynAnalyze(object):
         data = pre_data[max(pre_data.keys())]
         Syn_tree = Tree().add("", data, orient="TB").set_global_opts(
             title_opts=opts.TitleOpts(title="Syn_Tree"))
-        Syn_tree.render(path="./templates/render.html")
+        Syn_tree.render(path=tree_path)
 
-    def analyze(self, filename):
-        token_table = open(filename, 'r')
+    def analyze(self, token_table_path,tree_path,SynAnalyzeProcess_path):
+        "语法分析，顶层函数"
+        token_table = open(token_table_path, 'r')#读token表并处理
         tokens = list()
         for line in token_table:
             line = line[:-1]
@@ -386,22 +410,23 @@ class SynAnalyze(object):
                 next_token = line.split(' ')[2]
                 tokens.append((line.split(' ')[0], next_token))
         tokens.append((str(0), '#'))
-        isSuccess, tree_layer, tree_line = self.runOnLRTable(tokens)
-        self.get_tree(tree_layer, tree_line)
-        if isSuccess:
-            print('Syntax Analyze Successfully!')
+        token_table.close()
+        isSuccess, tree_layer, tree_line,message = self.runOnLRTable(tokens,SynAnalyzeProcess_path)#分析
+        if isSuccess:#成功
+            self.get_tree(tree_layer, tree_line,tree_path)
+            return True,message
         else:
-            print('Syntax Error!')
+            return False,message
 
 
 if __name__ == '__main__':
     SynGrammar_path = './SynGrammar.txt'  # 语法规则文件相对路径
     TokenTable_path = '../LexAnalyze/TOKEN-TABLE/token_table.data'  # 存储TOKEN表的相对路径
     LRTable_path = './LR-TABLE/LR-Table.csv'  # 存储LR表的相对路径
-
+    
     syn_ana = SynAnalyze()
     syn_ana.readSynGrammar(SynGrammar_path)
     syn_ana.getTerminatorsAndNon()
     syn_ana.getFirstSets()
     syn_ana.createLRTable(LRTable_path)
-    syn_ana.analyze(TokenTable_path)
+    syn_ana.analyze(TokenTable_path,tree_path="../templates/render.html",SynAnalyzeProcess_path="./runOnLRTable/runOnLRTable.txt")
