@@ -3,8 +3,4 @@
 1 limiter ;
 2 keyword int
 2 identifier b
-2 limiter ,
-2 identifier c
-2 limiter ,
-2 identifier d
 2 limiter ;
