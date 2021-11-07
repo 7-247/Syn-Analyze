@@ -1,3 +1,5 @@
+from flask import Flask, render_template, request
+import os
 from SynAnalyze import SynAnalyze
 from LexAnalyze import LexAnalyze
 
@@ -8,17 +10,15 @@ TokenTable_path = './LexAnalyze/TOKEN-TABLE/token_table.data'  # 存储TOKEN表�
 LRTable_path = './SynAnalyze/LR-TABLE/LR-Table.csv'  # 存储LR表的相对路径
 
 
-
-from flask import Flask,render_template,request
-import os
 app = Flask(__name__)
 
-@app.route('/', methods=['POST', 'GET'])    
+
+@app.route('/', methods=['POST', 'GET'])
 def index():
     if request.method == 'POST':
         user_input = request.form.get("name")
         print(user_input)
-        fp=open(source_path,'w')
+        fp = open(source_path, 'w')
         fp.write(user_input)
         fp.close()
 
@@ -27,7 +27,8 @@ def index():
         lex_ana.readLexGrammar(LexGrammar_path)
         lex_ana.createNFA()
         lex_ana.createDFA()
-        lex_ana.analyze(source_path, TokenTable_path)
+        codelist = lex_ana.Pretreatment(user_input)
+        lex_ana.analyze(codelist, TokenTable_path)
 
         # 语法分析
         syn_ana = SynAnalyze()
@@ -39,6 +40,6 @@ def index():
         return render_template('tree.html')
     return render_template('index.html')
 
+
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8888, debug=True)
-
