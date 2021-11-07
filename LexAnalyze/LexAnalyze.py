@@ -47,8 +47,6 @@ class LexAnalyze(object):
     def Pretreatment(self, sourcecode):
         if '\n' in sourcecode:
             sourcecode = sourcecode.split('\n')
-        elif '\r' in sourcecode:
-            sourcecode = sourcecode.split('\r')
         else:
             sourcecode = list([sourcecode])
         lines = [i.strip() for i in sourcecode]
