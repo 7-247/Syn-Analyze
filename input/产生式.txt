@@ -17,28 +17,25 @@ declaration_parameter_suffix:$
 primary_expression:identifier  
 primary_expression:number  
 primary_expression:( expression )  
+
 operator:+  
 operator:-  
 operator:*  
-operator:/  
-operator:%  
-operator:^  
-operator:&  
-operator:<  
-operator:>  
-operator:!=  
-operator:==  
-operator:<=  
-operator:>=  
+operator:/
+
+relop:<  
+relop:>  
+relop:!=  
+relop:==  
+relop:<=  
+relop:>=
+
 assignment_operator:=  
 assignment_operator:+=  
 assignment_operator:-=  
 assignment_operator:*=  
 assignment_operator:/=  
-assignment_operator:%=  
-assignment_operator:^=  
-assignment_operator:&=  
-assignment_operator:|=  
+
 assignment_expression:identifier assignment_operator expression  
 assignment_expression_list_suffix:, assignment_expression assignment_expression_list_suffix  
 assignment_expression_list_suffix:$  
@@ -47,7 +44,11 @@ assignment_expression_list:$
 expression:constant_expression  
 expression:function_expression  
 constant_expression:primary_expression arithmetic_expression  
+
 arithmetic_expression:operator primary_expression arithmetic_expression  
+
+arithmetic_expression:relop primary_expression arithmetic_expression  
+
 arithmetic_expression:$  
 function_expression:identifier ( expression_list )  
 expression_list_suffix:, expression expression_list_suffix  
