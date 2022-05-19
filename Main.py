@@ -4,6 +4,7 @@ import os
 from SynAnalyze import SynAnalyze
 from LexAnalyze import LexAnalyze
 from SemAnalyze import SemAnalyze
+from TargetMips import ToMips
 
 source_path = "./source/source.cc"  # 源文件相对路径
 LexGrammar_path = "./LexAnalyze/LexGrammar.txt"  # 词法规则文件相对路径
@@ -12,6 +13,8 @@ TokenTable_path = "./LexAnalyze/TOKEN-TABLE/token_table.data"  # 存储TOKEN表�
 LRTable_path = "./SynAnalyze/LR-TABLE/LR-Table.pkl"  # 存储LR表的相对路径
 tree_path = "./templates/render.html"  # 存储语法树的路径
 SynAnalyzeProcess_path = "./SynAnalyze/runOnLRTable/runOnLRTable.txt"  # 存储语法分析过程的路径
+target_path = "./TargetMips/target.asm"  #目标代码
+object_path = "./SemAnalyze/intermediate_representation.txt"  #中间代码
 
 
 def Main():
@@ -41,11 +44,14 @@ def Main():
     syn_ana.LRTable = pickle.load(open(LRTable_path, "rb"))
     Syn_flag, Syn_message = syn_ana.analyze(TokenTable_path, tree_path,
                                             SynAnalyzeProcess_path, sem_ana)
-    code = sorted(list(sem_ana.map.items()), key=lambda x: x[0])
-    for i in code:
-        print(i)
-    if Syn_flag:
+    if Syn_flag:  #成功
         print("结果已输出至render.html")
+        code = sorted(list(sem_ana.map.items()), key=lambda x: x[0])
+        with open(object_path, "w") as fp:
+            for i in code:  #四元式
+                fp.writelines(str(i) + '\n')
+        with open(target_path, "w") as fp:
+            fp.write(ToMips(code))
     else:
         print(Syn_message)
 

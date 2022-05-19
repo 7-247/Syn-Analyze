@@ -1,1 +1,1 @@
-from . import TargetMips
+from TargetMips.TargetMips import ToMips
