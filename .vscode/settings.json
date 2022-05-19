@@ -1,6 +1,4 @@
 {
-    "files.associations": {
-        "*.html": "html",
-        "iostream": "cpp"
-    }
+  "python.formatting.provider": "yapf",
+  "html.format.enable": true
 }

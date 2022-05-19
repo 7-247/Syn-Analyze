@@ -1,44 +1,115 @@
-if __name__ == '__main__':
+if __name__ == "__main__":
     from NFA import NFA, NFANode
     from DFA import DFA, DFANode
 else:
     from LexAnalyze.NFA import NFA, NFANode
     from LexAnalyze.DFA import DFA, DFANode
 
-digit = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-symbol = ['!', ',', ';', '[', ']',
-          '(', ')', '{', '}', '+', '-', '*', '/', '%', '^', '&', '|', '=', '<', '>']
-keyword = ['int', 'double', 'char', 'float', 'break', 'continue',
-           'do', 'while', 'if', 'else', 'for', 'void', 'return']
+digit = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+alphabet = [
+    "a",
+    "b",
+    "c",
+    "d",
+    "e",
+    "f",
+    "g",
+    "h",
+    "i",
+    "j",
+    "k",
+    "l",
+    "m",
+    "n",
+    "o",
+    "p",
+    "q",
+    "r",
+    "s",
+    "t",
+    "u",
+    "v",
+    "w",
+    "x",
+    "y",
+    "z",
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J",
+    "K",
+    "L",
+    "M",
+    "N",
+    "O",
+    "P",
+    "Q",
+    "R",
+    "S",
+    "T",
+    "U",
+    "V",
+    "W",
+    "X",
+    "Y",
+    "Z",
+]
+symbol = [
+    "!",
+    ",",
+    ";",
+    "[",
+    "]",
+    "(",
+    ")",
+    "{",
+    "}",
+    "+",
+    "-",
+    "*",
+    "/",
+    "%",
+    "^",
+    "&",
+    "|",
+    "=",
+    "<",
+    ">",
+]
+keyword = ["int", "double", "float", "while", "if", "else", "main", "void", "return"]
 
 
 class LexAnalyze(object):
-    """词法分析类"""
+    "词法分析类"
 
     def __init__(self):
-        self.productions = list()       # 产生式列表
-        self.alphabets = dict()         # 字母表（终结符）
+        self.productions = list()  # 产生式列表
+        self.alphabets = dict()  # 字母表（终结符）
         self.keywords = dict()
         self.NFA = None
         self.DFA = None
-        self.alphabets['alphabet'] = alphabet
-        self.alphabets['digit'] = digit
-        self.alphabets['symbol'] = symbol
+        self.alphabets["alphabet"] = alphabet
+        self.alphabets["digit"] = digit
+        self.alphabets["symbol"] = symbol
         for word in keyword:
-            self.keywords[word] = 'keyword'
+            self.keywords[word] = "keyword"
 
     def removenote(self, string):
-        """用于调用，去除注释"""
+        "用于调用，去除注释"
         CrossLine = False
-        a, b = string.find('//'), string.find('/*')
+        a, b = string.find("//"), string.find("/*")
         if a != -1 and (a < b or b == -1):
             string = string[:a]
         elif b != -1:
-            c = string[b+2:].find('*/')
-            if c > b+1:
-                string = string[c+4:]
+            c = string[b + 2 :].find("*/")
+            if c > b + 1:
+                string = string[c + 4 :]
                 CrossLine, string = self.removenote(string)
             else:
                 CrossLine = True
@@ -48,8 +119,8 @@ class LexAnalyze(object):
     # 入口参数为字符串型源代码,返回值为预处理之后包含每一行源代码的字符串
 
     def Pretreatment(self, sourcecode):
-        """去除注释"""
-        sourcecode = sourcecode.split('\n')
+        "去除注释"
+        sourcecode = sourcecode.split("\n")
         lines = [i.strip() for i in sourcecode]
         newcode = list()
         CrossLine_note_Flag = False
@@ -61,40 +132,40 @@ class LexAnalyze(object):
                 if len(i):
                     newcode.append(i)
             else:
-                if i.find('*/') != -1:
-                    i = i[i.index('*/')+2:]
+                if i.find("*/") != -1:
+                    i = i[i.index("*/") + 2 :]
                     CrossLine_note_Flag, i = self.removenote(i)
                     if len(i):
                         newcode.append(i)
         return newcode
 
     def readLexGrammar(self, filename):
-        """读取词法规则"""
+        "读取词法规则"
         line_num = 0
-        for line in open(filename, 'r'):
-            line = line.split('\n')[0].strip()
-            index = line.find(':')
+        for line in open(filename, "r"):
+            line = line.split("\n")[0].strip()
+            index = line.find(":")
             cur_left = line[0:index]
-            cur_right = line[index + 1:len(line)]
+            cur_right = line[index + 1 : len(line)]
             line_num += 1
 
             production = dict()
-            production['left'] = cur_left
-            index = cur_right.find(' ')
+            production["left"] = cur_left
+            index = cur_right.find(" ")
 
             # 右边有非终结符
             if index != -1:
-                production['input'] = cur_right[0:index]
-                production['right'] = cur_right[index + 1:len(cur_right)]
+                production["input"] = cur_right[0:index]
+                production["right"] = cur_right[index + 1 : len(cur_right)]
 
             # 右边没有非终结符
             else:
-                production['input'] = cur_right
-                production['right'] = None
+                production["input"] = cur_right
+                production["right"] = None
             self.productions.append(production)
 
     def createNFA(self):
-        """创建NFA"""
+        "创建NFA"
         all_status = dict()
 
         def getNFANode(name, isFinal):
@@ -103,14 +174,15 @@ class LexAnalyze(object):
             else:
                 node = NFANode(name=name, isFinal=isFinal)
             return node
-        start_node = getNFANode('start', 0)
-        end_node = getNFANode('end', 1)
-        all_status['start'] = start_node
-        all_status['end'] = end_node
+
+        start_node = getNFANode("start", 0)
+        end_node = getNFANode("end", 1)
+        all_status["start"] = start_node
+        all_status["end"] = end_node
         for prod in self.productions:
-            now = prod['left']
-            alpha = prod['input']
-            next = prod['right']
+            now = prod["left"]
+            alpha = prod["input"]
+            next = prod["right"]
             now_node = getNFANode(now, 0)
             # 右边有非终结符，指向对应节点
             if next is not None:
@@ -119,7 +191,7 @@ class LexAnalyze(object):
             # 输入字符不是由 'digit' 'nonzero_digit' 'alphabet' 表示的终结符，即alpha自身是一个终结符
             if alpha not in self.alphabets.keys():
                 if next is None:
-                    now_node.addEdge(alpha, 'end')
+                    now_node.addEdge(alpha, "end")
                 else:
                     if next in self.alphabets.keys():
                         for val in self.alphabets[next]:
@@ -130,7 +202,7 @@ class LexAnalyze(object):
             else:
                 for val in self.alphabets[alpha]:
                     if next is None:
-                        now_node.addEdge(val, 'end')
+                        now_node.addEdge(val, "end")
                     else:
                         if next in self.alphabets.keys():
                             for tval in self.alphabets[next]:
@@ -143,13 +215,13 @@ class LexAnalyze(object):
 
         # NFA的终结符集合
         terminators = list()
-        for i in range(ord(' '), ord('~') + 1):  # 全部合法的文本字符
+        for i in range(ord(" "), ord("~") + 1):  # 全部合法的文本字符
             terminators.append(chr(i))
         self.NFA = NFA(terminators)
         self.NFA.status = all_status
 
     def createDFA(self):
-        """创建对应的DFA"""
+        "创建对应的DFA"
         all_status = dict()
 
         def getDFANode(name, isFinal):
@@ -159,11 +231,11 @@ class LexAnalyze(object):
                 node = DFANode(name, isFinal)
             return node
 
-        for node_name in self.NFA.status['start'].edge['$']:
-            start_node = getDFANode('start', 0)
+        for node_name in self.NFA.status["start"].edge["$"]:
+            start_node = getDFANode("start", 0)
             dfa_node = getDFANode(node_name, 0)
-            start_node.addEdge('$', node_name)
-            all_status['start'] = start_node
+            start_node.addEdge("$", node_name)
+            all_status["start"] = start_node
             all_status[node_name] = dfa_node
 
             # 记录DFA节点是否已经访问过
@@ -200,12 +272,12 @@ class LexAnalyze(object):
                     # 如果target_set为空，则直接返回
                     if not target_set:
                         continue
-                    next_node_name = ''
+                    next_node_name = ""
                     isFinal = 0
                     tmp_list = list(target_set)
                     target_list = sorted(tmp_list)
                     for tar in target_list:
-                        next_node_name = '%s$%s' % (next_node_name, tar)
+                        next_node_name = "%s$%s" % (next_node_name, tar)
                         isFinal += int(self.NFA.status[tar].isFinal)
 
                     # 如果集合中有一个NFA的终态，该节点就是DFA的终态
@@ -228,27 +300,32 @@ class LexAnalyze(object):
 
         # DFA的终结符集合
         terminators = list()
-        for i in range(ord(' '), ord('~') + 1):  # 全部合法的文本字符
+        for i in range(ord(" "), ord("~") + 1):  # 全部合法的文本字符
             terminators.append(chr(i))
         self.DFA = DFA(terminators)
         self.DFA.status = all_status
 
     def runOnDFA(self, line, pos):
-        """开始分析"""
-        if line[pos] in self.alphabets['alphabet'] or line[pos] == '_':
+        "开始分析"
+        if line[pos] in self.alphabets["alphabet"] or line[pos] == "_":
             final_pos = pos
-            final_str = ''
-            while final_pos < len(line) and line[final_pos] not in self.alphabets['symbol'] and line[final_pos] != ' ':
+            final_str = ""
+            while (
+                final_pos < len(line)
+                and line[final_pos] not in self.alphabets["symbol"]
+                and line[final_pos] != " "
+            ):
                 final_str += line[final_pos]
                 final_pos += 1
 
             cur_pos = 0
-            token = ''
-            now_node = self.DFA.status['identifier']
-            while cur_pos < len(final_str) and final_str[cur_pos] in now_node.edge.keys():
+            token = ""
+            now_node = self.DFA.status["identifier"]
+            while (
+                cur_pos < len(final_str) and final_str[cur_pos] in now_node.edge.keys()
+            ):
                 token += final_str[cur_pos]
-                now_node = self.DFA.status[list(
-                    now_node.edge[final_str[cur_pos]])[0]]
+                now_node = self.DFA.status[list(now_node.edge[final_str[cur_pos]])[0]]
                 cur_pos += 1
 
             if cur_pos >= len(final_str) and now_node.isFinal > 0:
@@ -256,119 +333,143 @@ class LexAnalyze(object):
                 if token in self.keywords.keys():
                     token_type = self.keywords[token]
                 else:
-                    token_type = 'identifier'
-                return final_pos - 1, token_type, token, 'OK'
+                    token_type = "identifier"
+                return final_pos - 1, token_type, token, "OK"
             else:
-                return final_pos - 1, None, '', '标识符不合法'
+                return final_pos - 1, None, "", "标识符不合法"
 
-        elif line[pos] in self.alphabets['digit']:
+        elif line[pos] in self.alphabets["digit"]:
 
             # 判断是否为复数
             final_pos = pos
-            final_str = ''
-            while final_pos < len(line) and (line[final_pos] not in self.alphabets['symbol'] or line[final_pos] == '+'
-                                             or line[final_pos] == '-') and line[final_pos] != ' ':
+            final_str = ""
+            while (
+                final_pos < len(line)
+                and (
+                    line[final_pos] not in self.alphabets["symbol"]
+                    or line[final_pos] == "+"
+                    or line[final_pos] == "-"
+                )
+                and line[final_pos] != " "
+            ):
                 final_str += line[final_pos]
                 final_pos += 1
 
             cur_pos = 0
-            token = ''
-            now_node = self.DFA.status['complex']
-            while cur_pos < len(final_str) and final_str[cur_pos] in now_node.edge.keys():
+            token = ""
+            now_node = self.DFA.status["complex"]
+            while (
+                cur_pos < len(final_str) and final_str[cur_pos] in now_node.edge.keys()
+            ):
                 token += final_str[cur_pos]
-                now_node = self.DFA.status[list(
-                    now_node.edge[final_str[cur_pos]])[0]]
+                now_node = self.DFA.status[list(now_node.edge[final_str[cur_pos]])[0]]
                 cur_pos += 1
 
             if cur_pos >= len(final_str) and now_node.isFinal > 0:
-                token_type = 'number'
-                return final_pos - 1, token_type, token, 'OK'
+                token_type = "number"
+                return final_pos - 1, token_type, token, "OK"
 
             # 判断是否为科学计数形式常量
             final_pos = pos
-            final_str = ''
-            while final_pos < len(line) and (line[final_pos] not in self.alphabets['symbol'] or line[final_pos] == '+'
-                                             or line[final_pos] == '-') and line[final_pos] != ' ':
+            final_str = ""
+            while (
+                final_pos < len(line)
+                and (
+                    line[final_pos] not in self.alphabets["symbol"]
+                    or line[final_pos] == "+"
+                    or line[final_pos] == "-"
+                )
+                and line[final_pos] != " "
+            ):
                 final_str += line[final_pos]
                 final_pos += 1
 
             cur_pos = 0
-            token = ''
-            now_node = self.DFA.status['scientific']
-            while cur_pos < len(final_str) and final_str[cur_pos] in now_node.edge.keys():
+            token = ""
+            now_node = self.DFA.status["scientific"]
+            while (
+                cur_pos < len(final_str) and final_str[cur_pos] in now_node.edge.keys()
+            ):
                 token += final_str[cur_pos]
-                now_node = self.DFA.status[list(
-                    now_node.edge[final_str[cur_pos]])[0]]
+                now_node = self.DFA.status[list(now_node.edge[final_str[cur_pos]])[0]]
                 cur_pos += 1
 
             if cur_pos >= len(final_str) and now_node.isFinal > 0:
-                token_type = 'number'
-                return final_pos - 1, token_type, token, 'OK'
+                token_type = "number"
+                return final_pos - 1, token_type, token, "OK"
 
             # 判断是否为整型常量
             final_pos = pos
-            final_str = ''
-            while final_pos < len(line) and line[final_pos] not in self.alphabets['symbol'] and line[final_pos] != ' ':
+            final_str = ""
+            while (
+                final_pos < len(line)
+                and line[final_pos] not in self.alphabets["symbol"]
+                and line[final_pos] != " "
+            ):
                 final_str += line[final_pos]
                 final_pos += 1
 
             cur_pos = 0
-            token = ''
-            now_node = self.DFA.status['integer']
-            while cur_pos < len(final_str) and final_str[cur_pos] in now_node.edge.keys():
+            token = ""
+            now_node = self.DFA.status["integer"]
+            while (
+                cur_pos < len(final_str) and final_str[cur_pos] in now_node.edge.keys()
+            ):
                 token += final_str[cur_pos]
-                now_node = self.DFA.status[list(
-                    now_node.edge[final_str[cur_pos]])[0]]
+                now_node = self.DFA.status[list(now_node.edge[final_str[cur_pos]])[0]]
                 cur_pos += 1
 
             if cur_pos >= len(final_str) and now_node.isFinal > 0:
-                token_type = 'number'
-                return final_pos - 1, token_type, token, 'OK'
+                token_type = "number"
+                return final_pos - 1, token_type, token, "OK"
 
-            return final_pos - 1, None, '', '标识符或常量不合法'
+            return final_pos - 1, None, "", "标识符或常量不合法"
 
         else:
             cur_pos = pos
-            token = ''
-            token_type = 'limiter'
-            now_node = self.DFA.status['limiter']
+            token = ""
+            token_type = "limiter"
+            now_node = self.DFA.status["limiter"]
 
             # 逐个向后读取字符，并进行状态转移
             while cur_pos < len(line) and line[cur_pos] in now_node.edge.keys():
                 token += line[cur_pos]
-                now_node = self.DFA.status[list(
-                    now_node.edge[line[cur_pos]])[0]]
+                now_node = self.DFA.status[list(now_node.edge[line[cur_pos]])[0]]
                 cur_pos += 1
 
             # 如果到达终态，则获得一个单词
             if now_node.isFinal > 0:
-                return cur_pos - 1, token_type, token, 'OK'
+                return cur_pos - 1, token_type, token, "OK"
 
             cur_pos = pos
-            token = ''
-            token_type = 'operator'
-            now_node = self.DFA.status['operator']
+            token = ""
+            token_type = "operator"
+            now_node = self.DFA.status["operator"]
 
             # 逐个向后读取字符，并进行状态转移
             while cur_pos < len(line) and line[cur_pos] in now_node.edge.keys():
                 token += line[cur_pos]
-                now_node = self.DFA.status[list(
-                    now_node.edge[line[cur_pos]])[0]]
+                now_node = self.DFA.status[list(now_node.edge[line[cur_pos]])[0]]
                 cur_pos += 1
 
             # 如果到达终态，则获得一个单词
             if now_node.isFinal > 0:
-                return cur_pos - 1, token_type, token, 'OK'
+                return cur_pos - 1, token_type, token, "OK"
 
             cur_pos = pos
-            while cur_pos < len(line) and line[cur_pos] not in self.alphabets['symbol'] \
-                    and line[cur_pos] not in self.alphabets['digit'] and line[cur_pos] not in self.alphabets['alphabet'] \
-                    and line[cur_pos] != '_' and line[cur_pos] != ' ':
+            while (
+                cur_pos < len(line)
+                and line[cur_pos] not in self.alphabets["symbol"]
+                and line[cur_pos] not in self.alphabets["digit"]
+                and line[cur_pos] not in self.alphabets["alphabet"]
+                and line[cur_pos] != "_"
+                and line[cur_pos] != " "
+            ):
                 cur_pos += 1
-            return cur_pos - 1, None, '', '非法文本字符'
+            return cur_pos - 1, None, "", "非法文本字符"
 
     def analyze(self, codelist, TokenTable_path):
-        """顶层函数"""
+        "顶层函数"
         line_num = 0
         lex_error = False
         token_table = list()
@@ -378,13 +479,16 @@ class LexAnalyze(object):
             line_num += 1
             while pos < len(line):
                 # 跳过tab，回车，换行，空格
-                while pos < len(line) and line[pos] in ['\t', '\n', ' ', '\r']:
+                while pos < len(line) and line[pos] in ["\t", "\n", " ", "\r"]:
                     pos += 1
                 if pos < len(line):
                     pos, token_type, token, message = self.runOnDFA(line, pos)
                     if token_type is None:
-                        error_message = 'Lexical error at line %s, column %s : %s' % (
-                            str(line_num), str(pos), message)
+                        error_message = "Lexical error at line %s, column %s : %s" % (
+                            str(line_num),
+                            str(pos),
+                            message,
+                        )
                         print(error_message)
                         lex_error = True
                         # break
@@ -394,9 +498,9 @@ class LexAnalyze(object):
 
         # 如果未出错，那么写入token表文件
         if not lex_error:
-            output = open(TokenTable_path, 'w+')
+            output = open(TokenTable_path, "w+")
             for line_num, token_type, token in token_table:
-                output.write('%d %s %s\n' % (line_num, token_type, token))
+                output.write("%d %s %s\n" % (line_num, token_type, token))
             output.close()
             print("Lex analyze complete!")
             return True, error_message
@@ -405,10 +509,10 @@ class LexAnalyze(object):
         return False, error_message
 
 
-if __name__ == '__main__':
-    source_path = '../source/source.cc'  # 源文件相对路径
-    LexGrammar_path = './LexGrammar.txt'  # 词法规则文件相对路径
-    TokenTable_path = './TOKEN-TABLE/token_table.data'  # 存储TOKEN表的相对路径
+if __name__ == "__main__":
+    source_path = "./source/source.cc"  # 源文件相对路径
+    LexGrammar_path = "./LexAnalyze/LexGrammar.txt"  # 词法规则文件相对路径
+    TokenTable_path = "./LexAnalyze/TOKEN-TABLE/token_table.data"  # 存储TOKEN表的相对路径
 
     lex_ana = LexAnalyze()
     lex_ana.readLexGrammar(LexGrammar_path)
