@@ -33,15 +33,15 @@ assignment_expression_list:$
 constant_expression:or_bool_expression
 or_bool_expression:or_bool_expression or_operator M and_bool_expression
 or_bool_expression:and_bool_expression
-and_bool_expression:and_bool_expression and_operator M single_bool_expression
-and_bool_expression:single_bool_expression
+and_bool_expression:and_bool_expression and_operator M bitwise_or_expression
+and_bool_expression:bitwise_or_expression
 single_bool_expression:single_bool_expression bool_operator first_expression
 single_bool_expression:first_expression
 first_expression:first_expression first_operator second_expression
 first_expression:second_expression
 second_expression:second_expression second_operator primary_expression
 second_expression:third_expression
-third_expression:! primary_expression
+third_expression:third_operator primary_expression
 third_expression:primary_expression
 or_operator:||
 and_operator:&&
@@ -75,3 +75,15 @@ jump_statement:return expression ;
 jump_statement:return ;
 M:$
 N:$
+second_operator:%
+third_operator:!
+third_operator:~
+bitwise_or_operator:|
+bitwise_xor_operator:^
+bitwise_and_operator:&
+bitwise_or_expression:bitwise_or_expression bitwise_or_operator bitwise_xor_expression
+bitwise_or_expression:bitwise_xor_expression
+bitwise_xor_expression:bitwise_xor_expression bitwise_xor_operator bitwise_and_expression
+bitwise_xor_expression:bitwise_and_expression
+bitwise_and_expression:bitwise_and_expression bitwise_and_operator single_bool_expression
+bitwise_and_expression:single_bool_expression

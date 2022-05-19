@@ -4,9 +4,11 @@ dep_start = 10
 dep_end = 11
 pri_start = 14
 pri_end = 15
-two_op_start = 45
-two_op_end = 56
-operator = [41, 39]
+two_op_list = [
+    45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 77, 78, 79, 80, 81, 82
+]
+assign_op_list = [18, 19, 20, 21, 22, 23, 24, 25, 26]
+operator = [41, 39, 83, 85, 87]
 
 
 class SemAnalyze(object):
@@ -83,7 +85,7 @@ class SemAnalyze(object):
             else:
                 self.gIdTable.append([name, self.TypeStack[-1]])
         elif prod_id >= pri_start and prod_id <= pri_end:
-            if prod_id == pri_start:
+            if prod_id == pri_start:  #标识符
                 exist = False
                 for i in self.gIdTable:
                     if i[0] == token_list[0][0]:
@@ -96,8 +98,7 @@ class SemAnalyze(object):
                     self.warning.append(
                         f"line {line}:{token_list[0][0]} is Undefined")
             self.varStack.append(token_list[0][0])
-        elif (prod_id >= two_op_start
-              and prod_id <= two_op_end) or (prod_id >= 18 and prod_id <= 26):
+        elif (prod_id in two_op_list) or (prod_id in assign_op_list):
             self.opStack.append(token_list[0][1])
         elif prod_id in operator:
             a = self.varStack.pop()
@@ -118,10 +119,21 @@ class SemAnalyze(object):
                     op, token_list[0][0], a, token_list[0][0]
                 ]
             self.now += 1
+        elif prod_id == 36:  #E->id 布尔表达式变成标识符或数字
+            #self.linklist.append([[], []])
+            #self.linklist[-1][0].extend(e2[0])
+            #self.linklist[-1][0].extend(e1[0])
+            #self.linklist[-1][1].extend(e2[1])
+            pass
         elif prod_id == 43:
+            #e = self.linklist.pop()
+            #self.linklist.append([[], []])  ##gzy
+            #self.linklist[-1][0].extend(e[1])
+            #self.linklist[-1][1].extend(e[0])
+
             a = self.varStack.pop()
+            op = self.opStack.pop()
             self.temp += 1
-            op = "!"
             self.varStack.append(f"$TEMP{self.temp}")
             self.map[self.now] = [op, a, "-", f"$TEMP{self.temp}"]
             self.now += 1
@@ -166,6 +178,7 @@ class SemAnalyze(object):
             mark = self.Mark.pop()
             for i in e1[1]:
                 self.map[i][3] = mark
+            self.linklist.append([[], []])  ##gzy
             self.linklist[-1][0].extend(e2[0])
             self.linklist[-1][0].extend(e1[0])
             self.linklist[-1][1].extend(e2[1])
@@ -191,7 +204,7 @@ class SemAnalyze(object):
             for i in e[0]:
                 self.map[i][3] = m
             s = s1 + e[1]
-            print("s:", s)
+            #print("s:", s)
             self.nextlist.append(s)
         elif prod_id == 71:
             m2 = self.Mark.pop()

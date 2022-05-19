@@ -24,6 +24,7 @@ operator:=
 operator:>  
 operator:<  
 operator:!
+operator:~
 operator:| |_tail
 |_tail:|
 operator:& &_tail

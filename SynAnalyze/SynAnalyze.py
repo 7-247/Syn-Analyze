@@ -9,6 +9,7 @@ import os
 from pyecharts import options as opts
 from pyecharts.charts import Tree
 from SemAnalyze import SemAnalyze
+import pickle
 
 
 class SynAnalyze(object):
@@ -300,6 +301,7 @@ class SynAnalyze(object):
                             "G",
                             next_node_id,
                         )
+        #创建csv
         actColumns = self.terminators
         actColumns.append("#")
         action = pd.DataFrame(index=list(self.LRTable.keys()),
@@ -315,7 +317,9 @@ class SynAnalyze(object):
         action[np.nan] = np.nan
         table = action.join(goto)
         table = table.drop(["$"], axis=1)
-        table.to_csv(LRTable_path)
+        table.to_csv(LRTable_path + ".csv")
+
+        pickle.dump(self.LRTable, open(LRTable_path, "wb"))
         return True
 
     def runOnLRTable(self, tokens, SynAnalyzeProcess_path, SemAnalyze_object):
@@ -334,19 +338,15 @@ class SynAnalyze(object):
             step += 1
             top_status = status_stack[-1]
             now_line_num, now_token_name, now_token = tokens[-1]
-            # print('token: ' + now_token)
-            # print('symbol stack:')
-            # print(symbol_stack)
-            # print('status stack:')
-            # print(status_stack)
-            # print()
             fp.write("\ntoken:%s" % now_token)
             fp.write("\nsymbol stack:\n")
             fp.write(str(symbol_stack))
             fp.write("\nstatus stack:\n")
             fp.write(str(status_stack))
 
+            #try:
             if now_token in self.LRTable[top_status].keys():  # 进行状态转移
+
                 action = self.LRTable[top_status][now_token]
                 if action[0] == "acc":
                     isSuccess = True
@@ -404,10 +404,12 @@ class SynAnalyze(object):
                         (None, left, next_line, tree_layer_num[next_line]))
                     tree_layer.append(
                         (left, next_line, tree_layer_num[next_line]))
-            else:  # 无法进行状态转移，报错
-                print("line %s" % now_line_num)
-                print("found: %s" % now_token)
-                print("expecting:")
+
+            #except:  # 无法进行状态转移，报错
+            else:
+                #print("line %s" % now_line_num)
+                #print("found: %s" % now_token)
+                #print("expecting:")
                 message += ("\nline %s\n" % now_line_num +
                             "found: %s\n" % now_token + "expecting:\n")
                 for exp in self.LRTable[top_status].keys():
@@ -420,7 +422,6 @@ class SynAnalyze(object):
             message += "\nSyntax Error!\n"
         fp.write(message)
         fp.close()
-        # print(message)
         return isSuccess, tree_layer, tree_line, message
 
     def get_tree(self, tree_layer, tree_line, tree_path):
