@@ -11,8 +11,8 @@
     }
 }
 
-ÓïÒå·ÖÎöÄ£¿éÎÞ·¨½«ÆäËüÀàÐÍ×Ô¶¯×ª»¯Îªbool£¬ÀýÈçÖ±½ÓÐ´if(a)»á±¨´í(aÊÇÒ»¸öint)
-Òò´ËÐèÒªÔÚwhile»òifÀïÃæÐ´bool±í´ïÊ½(E1 nop E2),Í¬Ê±Ö§³ÖÓÃ&&»ò||½«ËüÃÇÁ¬½Ó
+è¯­ä¹‰åˆ†æžæ¨¡å—æ— æ³•å°†å…¶å®ƒç±»åž‹è‡ªåŠ¨è½¬åŒ–ä¸ºboolï¼Œä¾‹å¦‚ç›´æŽ¥å†™if(a)ä¼šæŠ¥é”™(aæ˜¯ä¸€ä¸ªint)
+å› æ­¤éœ€è¦åœ¨whileæˆ–ifé‡Œé¢å†™boolè¡¨è¾¾å¼(E1 nop E2),åŒæ—¶æ”¯æŒç”¨&&æˆ–||å°†å®ƒä»¬è¿žæŽ¥
 */
 /*
 int a = 5, b = 3;
