@@ -302,7 +302,7 @@ def ToMips(codes, reg_num=32) -> str:  #中间代码转mips汇编
                 regInit(code[1][2])  #单目运算符号和赋值语句除外
             regInit(code[1][3])
     TargetMap[codes[-1][0] + 1] = ["", ""]  #最后一个空的
-    print(regMap)
+    #print(regMap)
 
     for code in codes:
         tranToMips(code)

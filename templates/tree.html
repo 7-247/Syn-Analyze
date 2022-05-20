@@ -2,33 +2,6 @@
 <html>
   <head>
     <title>TREE</title>
-    <style>
-      .button {
-        background-color: #4caf50; /* Green */
-        border: none;
-        color: white;
-        padding: 16px 32px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-        margin: 4px 2px;
-        -webkit-transition-duration: 0.4s; /* Safari */
-        transition-duration: 0.4s;
-        cursor: pointer;
-      }
-
-      .button1 {
-        background-color: white;
-        color: black;
-        border: 2px solid #4caf50;
-      }
-
-      .button1:hover {
-        background-color: #4caf50;
-        color: white;
-      }
-    </style>
   </head>
   <body>
     <div>
@@ -36,9 +9,11 @@
         <a href="/" title="返回"> 返回主页</a>
       </button>
     </div>
-    <div align="center">    
-      <textarea rows=20 maxlength=99999 type="text" name="name" id="name" placeholder="{{message}}" disabled="disabled"style="text-align: center; margin: 0px; width: 400px; height: 300px;"/></textarea>
-    </div>
+    <div align="center"> 
+        <p>Mips代码如下：</p>
+      <textarea rows=20 maxlength=99999 type="text" disabled="disabled" style="margin: 0px; width: 400px; height: 300px;"/>{{message}}</textarea>
     {% extends 'render.html' %}
-  </body>
+
+</body>
 </html>
+
